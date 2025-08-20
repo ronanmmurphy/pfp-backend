@@ -1,0 +1,5 @@
+export enum Eligibility {
+  TRANSITIONING_SERVICE_MEMBER = 0,
+  GOLD_STAR_FAMILY_MEMBER = 1,
+  MILITARY_SPOUSE = 2,
+}
