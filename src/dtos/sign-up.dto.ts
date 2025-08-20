@@ -29,9 +29,15 @@ export class SignUpDto {
   @IsEnum(UserRole)
   role: UserRole;
 
+  @IsString()
+  @IsNotEmpty()
+  phoneNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  streetAddress1: string;
+
   // Common
-  @IsOptional() @IsString() phoneNumber?: string;
-  @IsOptional() @IsString() streetAddress1?: string;
   @IsOptional() @IsString() streetAddress2?: string;
   @IsOptional() @IsString() city?: string;
   @IsOptional() @IsString() state?: string;

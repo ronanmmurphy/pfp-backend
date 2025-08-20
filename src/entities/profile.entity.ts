@@ -32,16 +32,15 @@ export class Profile extends BaseEntity {
   @Column({ name: 'role', type: 'enum', enum: UserRole })
   role: UserRole;
 
-  @Column({ name: 'phone_number', type: 'varchar', length: 50, nullable: true })
-  phoneNumber?: string;
+  @Column({ name: 'phone_number', type: 'varchar', length: 50 })
+  phoneNumber: string;
 
   @Column({
     name: 'street_address1',
     type: 'varchar',
     length: 255,
-    nullable: true,
   })
-  streetAddress1?: string;
+  streetAddress1: string;
 
   @Column({
     name: 'street_address2',
@@ -66,8 +65,12 @@ export class Profile extends BaseEntity {
   @Column({ name: 'referred_by', type: 'varchar', length: 255, nullable: true })
   referredBy?: string;
 
-  @Column({ name: 'seeking_employment', type: 'boolean', default: false })
-  seekingEmployment: boolean;
+  @Column({
+    name: 'seeking_employment',
+    type: 'boolean',
+    nullable: true,
+  })
+  seekingEmployment?: boolean;
 
   @Column({
     name: 'linkedin_profile',
@@ -75,7 +78,7 @@ export class Profile extends BaseEntity {
     length: 255,
     nullable: true,
   })
-  linkedinProfile: string;
+  linkedinProfile?: string;
 
   @Column({
     name: 'eligibility',
@@ -83,7 +86,7 @@ export class Profile extends BaseEntity {
     enum: Eligibility,
     nullable: true,
   })
-  eligibility: Eligibility;
+  eligibility?: Eligibility;
 
   @Column({
     name: 'military_branch_affiliation',
@@ -91,8 +94,8 @@ export class Profile extends BaseEntity {
     enum: MilitaryBranchAffiliation,
     nullable: true,
   })
-  militaryBranchAffiliation: MilitaryBranchAffiliation;
+  militaryBranchAffiliation?: MilitaryBranchAffiliation;
 
   @Column({ name: 'military_ets_date', type: 'date', nullable: true })
-  militaryETSDate: Date;
+  militaryETSDate?: Date;
 }

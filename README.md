@@ -14,7 +14,7 @@
   npx typeorm-ts-node-commonjs migration:run -d ormconfig.ts
   ```
 
-- Rever Migration
+- Revert Migration
 
   ```
   npx typeorm-ts-node-commonjs migration:revert -d ormconfig.ts
