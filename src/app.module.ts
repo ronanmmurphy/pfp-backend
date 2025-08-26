@@ -4,13 +4,19 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Profile } from './entities/profile.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UserRepository } from './repositories/user.repository';
-import { ProfileRepository } from './repositories/profile.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { SessionController } from './controllers/session.controller';
+import { SessionService } from './services/session.service';
+import { SessionRepository } from './repositories/session.repository';
+import { Session } from './entities/session.entity';
+import { StatsController } from './controllers/stats.controller';
+import { StatsService } from './services/stats.service';
+import { UserController } from './controllers/user.controller';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -25,21 +31,30 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         username: config.get('DATABASE_USER'),
         password: config.get('DATABASE_PASSWORD'),
         database: config.get('DATABASE_NAME'),
-        entities: [User, Profile],
+        entities: [User, Session],
         synchronize: false,
         migrations: ['dist/migrations/*.js'],
         migrationsRun: false,
       }),
     }),
-    TypeOrmModule.forFeature([User, Profile]),
+    TypeOrmModule.forFeature([User, Session]),
     JwtModule.register({}),
   ],
-  controllers: [AppController, AuthController],
+  controllers: [
+    AppController,
+    AuthController,
+    UserController,
+    StatsController,
+    SessionController,
+  ],
   providers: [
     AppService,
     AuthService,
+    UserService,
+    StatsService,
+    SessionService,
     UserRepository,
-    ProfileRepository,
+    SessionRepository,
     JwtStrategy,
   ],
 })

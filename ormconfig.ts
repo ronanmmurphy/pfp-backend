@@ -1,8 +1,7 @@
-// ormconfig.ts
-import { Profile } from './src/entities/profile.entity';
 import { User } from './src/entities/user.entity';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { Session } from './src/entities/session.entity';
 
 dotenv.config();
 
@@ -13,7 +12,7 @@ export default new DataSource({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [User, Profile],
+  entities: [User, Session],
   migrations: ['./migrations/*.ts'],
   synchronize: false,
 });

@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
 import { UserRole } from '../enums/user-role.enum';
 import { Eligibility } from '../enums/eligibility.enum';
@@ -37,6 +38,12 @@ export class SignUpDto {
   @IsNotEmpty()
   streetAddress1: string;
 
+  @IsNumber()
+  latitude: number;
+
+  @IsNumber()
+  longitude: number;
+
   // Common
   @IsOptional() @IsString() streetAddress2?: string;
   @IsOptional() @IsString() city?: string;
@@ -55,4 +62,25 @@ export class SignUpDto {
   @IsEnum(MilitaryBranchAffiliation)
   militaryBranchAffiliation?: MilitaryBranchAffiliation;
   @IsOptional() militaryETSDate?: Date;
+}
+
+export class AddressSuggestionsDto {
+  @IsString()
+  streetAddress1: string;
+
+  @IsOptional()
+  @IsString()
+  streetAddress2?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  state?: string;
+
+  @IsOptional()
+  @IsString()
+  postalCode?: string;
 }
