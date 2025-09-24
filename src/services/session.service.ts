@@ -29,6 +29,8 @@ export class SessionService {
       throw new NotFoundException('Photographer not found');
     }
 
+    const sessionDate = new Date(dto.date);
+
     if (
       photographer.maxSessionsPerMonth !== null &&
       photographer.maxSessionsPerMonth !== undefined
@@ -53,15 +55,17 @@ export class SessionService {
         999,
       );
 
-      const count = await this.sessionRepo.countBy({
-        photographer: { id: dto.photographerId },
-        date: Between(startOfMonth, endOfMonth),
-      });
+      if (sessionDate >= startOfMonth && sessionDate <= endOfMonth) {
+        const count = await this.sessionRepo.countBy({
+          photographer: { id: dto.photographerId },
+          date: Between(startOfMonth, endOfMonth),
+        });
 
-      if (count >= photographer.maxSessionsPerMonth)
-        throw new BadRequestException(
-          `Cannot create session: Already has ${photographer.maxSessionsPerMonth} sessions this month. Schedule it next month or later.`,
-        );
+        if (count >= photographer.maxSessionsPerMonth)
+          throw new BadRequestException(
+            `Cannot create session: Already has ${photographer.maxSessionsPerMonth} sessions this month. Schedule it next month or later.`,
+          );
+      }
     }
 
     const sessionData: Partial<Session> = {

@@ -76,7 +76,7 @@ export class SessionRepository {
   }
 
   async countBy(where: any) {
-    return await this.repo.count(where);
+    return await this.repo.count({ where });
   }
 
   async findSessions(
