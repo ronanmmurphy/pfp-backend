@@ -1,4 +1,11 @@
-import { Exclude, Type } from 'class-transformer';
+import {
+  Eligibility,
+  MilitaryBranchAffiliation,
+  UserRole,
+  UserStatus,
+} from '@/enums/user.enum';
+import { PartialType } from '@nestjs/mapped-types';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import {
   IsInt,
   Min,
@@ -11,225 +18,278 @@ import {
   IsBoolean,
   IsDateString,
   IsNumber,
+  IsArray,
 } from 'class-validator';
-import { Eligibility } from '../enums/eligibility.enum';
-import { MilitaryBranchAffiliation } from '../enums/military-branch.enum';
-import { UserRole } from '../enums/user-role.enum';
 
-export class UserQueryDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
+export class GetAddressSuggestionsQueryDto {
+  @IsString() @IsNotEmpty() streetAddress1: string;
 
-  @IsOptional()
-  @IsEnum(UserRole, { message: 'role must be a valid UserRole value' })
-  role?: UserRole;
+  @IsOptional() @IsString() streetAddress2?: string;
 
-  @IsOptional()
-  @IsInt({ message: 'page must be an integer' })
-  @Min(1, { message: 'page must be at least 1' })
-  page?: number = 1;
+  @IsOptional() @IsString() city?: string;
 
-  @IsOptional()
-  @IsInt({ message: 'pageSize must be an integer' })
-  @Min(1, { message: 'pageSize must be at least 1' })
-  @Max(50, { message: 'pageSize cannot exceed 50' })
-  pageSize?: number = 10;
+  @IsOptional() @IsString() state?: string;
+
+  @IsOptional() @IsString() postalCode?: string;
+}
+
+export class AddressSuggestionsResponseDto {
+  @IsString() displayName: string;
+
+  @IsNumber() latitude: number;
+
+  @IsNumber() longitude: number;
 }
 
 export class CreateUserDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @IsEmail() email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
+  @IsString() @IsNotEmpty() password: string;
 
-  @IsString()
-  @IsNotEmpty()
-  firstName: string;
+  @IsString() @IsNotEmpty() firstName: string;
 
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
+  @IsString() @IsNotEmpty() lastName: string;
 
-  @IsEnum(UserRole)
-  role: UserRole;
+  @IsEnum(UserRole) role: UserRole;
 
-  @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
+  @IsEnum(UserStatus) status: UserStatus;
 
-  @IsString()
-  @IsNotEmpty()
-  streetAddress1: string;
+  @IsString() @IsNotEmpty() phoneNumber: string;
 
-  @IsOptional()
-  @IsString()
-  streetAddress2?: string;
+  @IsString() @IsNotEmpty() streetAddress1: string;
 
-  @IsOptional()
-  @IsString()
-  city?: string;
+  @IsOptional() @IsString() streetAddress2?: string;
 
-  @IsOptional()
-  @IsString()
-  state?: string;
+  @IsOptional() @IsString() city?: string;
 
-  @IsOptional()
-  @IsString()
-  postalCode?: string;
+  @IsOptional() @IsString() state?: string;
 
-  @IsNumber()
-  latitude: number;
+  @IsOptional() @IsString() postalCode?: string;
 
-  @IsNumber()
-  longitude: number;
+  @IsNumber() latitude: number;
 
-  @IsOptional()
-  @IsString()
-  website?: string;
+  @IsNumber() longitude: number;
 
-  @IsOptional()
-  @IsString()
-  referredBy?: string;
+  @IsOptional() @IsString() referredBy?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  seekingEmployment?: boolean;
+  @IsOptional() @IsString() reasonForDenying?: string;
 
-  @IsOptional()
-  @IsString()
-  linkedinProfile?: string;
+  // Photographer
+  @IsOptional() @IsString() website?: string;
 
-  @IsOptional()
-  @IsEnum(Eligibility)
-  eligibility?: Eligibility;
+  @IsOptional() @IsNumber() maxSessionsPerMonth?: number;
+
+  // Photographer Onboarding
+  @IsOptional() @IsString() mailingStreetAddress1?: string;
+
+  @IsOptional() @IsString() mailingStreetAddress2?: string;
+
+  @IsOptional() @IsString() mailingCity?: string;
+
+  @IsOptional() @IsString() mailingState?: string;
+
+  @IsOptional() @IsString() mailingPostalCode?: string;
+
+  @IsOptional() @IsString() closestBase?: string;
+
+  @IsOptional() @IsBoolean() agreeToCriminalBackgroundCheck?: boolean;
+
+  @IsOptional() @IsString() xLink?: string;
+
+  @IsOptional() @IsString() facebookLink?: string;
+
+  @IsOptional() @IsString() linkedinLink?: string;
+
+  @IsOptional() @IsString() instagramLink?: string;
+
+  @IsOptional() @IsBoolean() isHomeStudio?: boolean;
+
+  @IsOptional() @IsString() partOfHomeStudio?: string;
+
+  @IsOptional() @IsBoolean() isSeparateEntrance?: boolean;
+
+  @IsOptional() @IsBoolean() acknowledgeHomeStudioAgreement?: boolean;
+
+  @IsOptional() @IsBoolean() isStudioAdaAccessible?: boolean;
+
+  @IsOptional() @IsBoolean() agreeToVolunteerAgreement?: boolean;
+
+  @IsOptional() @IsArray() studioSpaceImages?: string[];
+
+  @IsOptional() @IsArray() proofOfInsuranceImages?: string[];
+
+  // Veteran
+  @IsOptional() @IsBoolean() seekingEmployment?: boolean;
+
+  @IsOptional() @IsString() linkedinProfile?: string;
+
+  @IsOptional() @IsEnum(Eligibility) eligibility?: Eligibility;
 
   @IsOptional()
   @IsEnum(MilitaryBranchAffiliation)
   militaryBranchAffiliation?: MilitaryBranchAffiliation;
 
-  @IsOptional()
-  @IsDateString()
-  militaryETSDate?: string;
+  @IsOptional() @IsDateString() militaryETSDate?: string;
 }
 
-export class UpdateUserDto {
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+export class GetUsersQueryDto {
+  @IsOptional() @IsString() search?: string;
 
   @IsOptional()
-  @IsString()
-  password?: string;
-
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-
-  @IsOptional()
-  @IsEnum(UserRole)
+  @IsEnum(UserRole, { message: 'Role must be a valid UserRole value' })
   role?: UserRole;
 
   @IsOptional()
-  @IsString()
-  phoneNumber?: string;
+  @IsEnum(UserStatus, { message: 'Status must be a valid UserStatus value' })
+  status?: UserStatus;
 
   @IsOptional()
-  @IsString()
-  streetAddress1?: string;
+  @IsInt({ message: 'Page must be an integer' })
+  @Min(1, { message: 'Page must be at least 1' })
+  page?: number = 1;
 
   @IsOptional()
-  @IsString()
-  streetAddress2?: string;
+  @IsInt({ message: 'Page size must be an integer' })
+  @Min(1, { message: 'Page size must be at least 1' })
+  @Max(50, { message: 'Page size cannot exceed 50' })
+  pageSize?: number = 10;
+}
 
-  @IsOptional()
-  @IsString()
-  city?: string;
+export class UserResponseDto {
+  id: number;
 
-  @IsOptional()
-  @IsString()
-  state?: string;
+  email: string;
 
-  @IsOptional()
-  @IsString()
-  postalCode?: string;
+  @Exclude() password: string;
 
-  @IsNumber()
+  firstName: string;
+
+  lastName: string;
+
+  role: UserRole;
+
+  status: UserStatus;
+
+  phoneNumber: string;
+
+  streetAddress1: string;
+
+  streetAddress2?: string | null;
+
+  city?: string | null;
+
+  state?: string | null;
+
+  postalCode?: string | null;
+
   latitude: number;
 
-  @IsNumber()
   longitude: number;
 
-  @IsOptional()
-  @IsString()
-  website?: string;
-
-  @IsOptional()
-  @IsString()
-  referredBy?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  seekingEmployment?: boolean;
-
-  @IsOptional()
-  @IsString()
-  linkedinProfile?: string;
-
-  @IsOptional()
-  @IsEnum(Eligibility)
-  eligibility?: Eligibility;
-
-  @IsOptional()
-  @IsEnum(MilitaryBranchAffiliation)
-  militaryBranchAffiliation?: MilitaryBranchAffiliation;
-
-  @IsOptional()
-  @IsDateString()
-  militaryETSDate?: string;
-}
-
-export class UserItem {
-  id: number;
-  email: string;
-  @Exclude()
-  password: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  phoneNumber: string;
-  streetAddress1: string;
-  streetAddress2?: string | null;
-  city?: string | null;
-  state?: string | null;
-  postalCode?: string | null;
-  website?: string | null;
   referredBy?: string | null;
+
+  reasonForDenying?: string | null;
+
+  // Photographer
+  website?: string | null;
+
+  maxSessionsPerMonth?: number | null;
+
+  // Photographer Onboarding
+  mailingStreetAddress1?: string | null;
+
+  mailingStreetAddress2?: string | null;
+
+  mailingCity?: string | null;
+
+  mailingState?: string | null;
+
+  mailingPostalCode?: string | null;
+
+  closestBase?: string | null;
+
+  agreeToCriminalBackgroundCheck?: boolean | null;
+
+  xLink?: string | null;
+
+  facebookLink?: string | null;
+
+  linkedinLink?: string | null;
+
+  instagramLink?: string | null;
+
+  isHomeStudio?: boolean | null;
+
+  partOfHomeStudio?: string | null;
+
+  isSeparateEntrance?: boolean | null;
+
+  acknowledgeHomeStudioAgreement?: boolean | null;
+
+  isStudioAdaAccessible?: boolean | null;
+
+  agreeToVolunteerAgreement?: boolean | null;
+
+  studioSpaceImages?: string[];
+
+  proofOfInsuranceImages?: string[];
+
+  // Veteran
   seekingEmployment?: boolean | null;
+
   linkedinProfile?: string | null;
+
   eligibility?: Eligibility | null;
+
   militaryBranchAffiliation?: MilitaryBranchAffiliation | null;
-  @Type(() => Date)
-  militaryETSDate?: string | null;
+
+  @Transform(({ value }) => {
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.toISOString();
+    }
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      return value;
+    }
+    return null;
+  })
+  militaryETSDate?: Date | null;
 }
 
-export class UserPageResponse<T> {
-  items: T[];
-  total: number;
-}
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
 export class NearbyQueryDto {
-  @IsNumber()
-  userId: number;
+  @IsNumber() latitude: number;
 
-  @IsNumber()
-  @Min(0)
-  radius: number = 100;
+  @IsNumber() longitude: number;
+
+  @IsNumber() @Min(0) radius: number = 100;
+}
+
+export class NearbyPhotographerResponseDto {
+  id: number;
+
+  email: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  phoneNumber: string;
+
+  streetAddress1: string;
+
+  streetAddress2?: string | null;
+
+  city?: string | null;
+
+  state?: string | null;
+
+  postalCode?: string | null;
+
+  latitude: number;
+
+  longitude: number;
+
+  @Expose()
+  distance: number; // in miles
 }

@@ -1,20 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@/app.module';
-import { SignUpDto } from '@/dtos/sign-up.dto';
-import { UserRole } from '@/enums/user-role.enum';
-import { AuthService } from '@/services/auth.service';
+import { UserRole, UserStatus } from '@/enums/user.enum';
+import { CreateUserDto } from '@/dtos/user.dto';
+import { UserService } from '@/services/user.service';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const authService = app.get(AuthService);
+  const userService = app.get(UserService);
 
-  const users: SignUpDto[] = [
+  const users: CreateUserDto[] = [
     {
       email: 'eric@portraitsforpatriots.org',
       password: 'PfpAdminPassword123$',
       firstName: 'Eric',
       lastName: 'S',
       role: UserRole.ADMIN,
+      status: UserStatus.APPROVED,
       phoneNumber: '111-222-333',
       streetAddress1: '123 Main St',
       latitude: 0,
@@ -26,6 +27,7 @@ async function seed() {
       firstName: 'Ronan',
       lastName: 'Murphy',
       role: UserRole.ADMIN,
+      status: UserStatus.APPROVED,
       phoneNumber: '111-222-333',
       streetAddress1: '123 Main St',
       latitude: 0,
@@ -33,9 +35,10 @@ async function seed() {
     },
   ];
 
+  console.log('User seeding started...');
   for (const user of users) {
     try {
-      await authService.signup(user);
+      await userService.createUser(user);
       console.log(`Seeded user: ${user.email}`);
     } catch (error) {
       console.warn(

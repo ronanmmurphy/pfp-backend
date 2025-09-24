@@ -9,62 +9,32 @@ import {
   Max,
   ValidateIf,
 } from 'class-validator';
-import { SessionStatus } from '../enums/session-status.enum';
-
-export class SessionItem {
-  id: number;
-  name: string;
-  note?: string;
-  date: string;
-  expirationDate?: string;
-  status: SessionStatus;
-  photographer: any;
-  veteran: any;
-}
-
-export class UpdateSession {
-  status?: SessionStatus;
-  date?: Date;
-}
-
-export class SessionPageResponse<T> {
-  items: T[];
-  total: number;
-}
+import { SessionStatus } from '../enums/session.enum';
+import { PartialType } from '@nestjs/mapped-types';
+import { Expose, Transform } from 'class-transformer';
 
 export class CreateSessionDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsString() @IsNotEmpty() name: string;
 
-  @IsOptional()
-  @IsString()
-  note?: string;
+  @IsOptional() @IsString() note?: string;
 
-  @IsOptional()
-  @IsEnum(SessionStatus)
-  status?: SessionStatus;
+  @IsEnum(SessionStatus) status: SessionStatus;
 
-  // ISO date-time string (e.g., 2025-08-20T10:30:00Z)
-  @IsDateString()
-  date: string;
+  @IsDateString() date: string;
 
-  // ISO date string (e.g., 2025-08-31)
-  @IsOptional()
-  @IsDateString()
-  expirationDate?: string;
+  @IsOptional() @IsDateString() expirationDate?: string;
 
-  @IsInt()
-  photographerId: number;
+  @IsOptional() @IsString() photographerFeedback?: string;
 
-  @IsInt()
-  veteranId: number;
+  @IsOptional() @IsString() veteranFeedback?: string;
+
+  @IsInt() @IsNotEmpty() photographerId: number;
+
+  @IsInt() @IsNotEmpty() veteranId: number;
 }
 
-export class SessionQueryDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
+export class GetSessionsQueryDto {
+  @IsOptional() @IsString() search?: string;
 
   @IsOptional()
   @ValidateIf((o) => o.status !== '')
@@ -93,32 +63,89 @@ export class SessionQueryDto {
   pageSize?: number = 10;
 }
 
-export class UpdateSessionDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
+export class SessionResponseDto {
+  id: number;
+  name: string;
+  note?: string | null;
+  status: SessionStatus;
 
-  @IsOptional()
-  @IsString()
-  note?: string;
+  @Transform(({ value }) => {
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.toISOString();
+    }
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      return value;
+    }
+    return null;
+  })
+  date: string;
 
-  @IsOptional()
-  @IsEnum(SessionStatus)
-  status?: SessionStatus;
+  @Transform(({ value }) => {
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.toISOString();
+    }
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      return value;
+    }
+    return null;
+  })
+  expirationDate?: string | null;
 
-  @IsOptional()
-  @IsDateString()
-  date?: string;
+  photographerFeedback?: string | null;
 
-  @IsOptional()
-  @IsDateString()
-  expirationDate?: string;
+  veteranFeedback?: string | null;
 
-  @IsOptional()
-  @IsInt()
-  photographerId?: number;
+  @Expose()
+  @Transform(({ value }) => ({
+    id: value?.id,
+    firstName: value?.firstName,
+    lastName: value?.lastName,
+    email: value?.email,
+    phoneNumber: value?.phoneNumber,
+    streetAddress1: value?.streetAddress1,
+    streetAddress2: value?.streetAddress2 ?? undefined,
+    city: value?.city ?? undefined,
+    state: value?.state ?? undefined,
+    postalCode: value?.postalCode ?? undefined,
+  }))
+  photographer: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    streetAddress1: string;
+    streetAddress2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+  } | null;
 
-  @IsOptional()
-  @IsInt()
-  veteranId?: number;
+  @Expose()
+  @Transform(({ value }) => ({
+    id: value?.id,
+    firstName: value?.firstName,
+    lastName: value?.lastName,
+    email: value?.email,
+    phoneNumber: value?.phoneNumber,
+    streetAddress1: value?.streetAddress1,
+    streetAddress2: value?.streetAddress2 ?? undefined,
+    city: value?.city ?? undefined,
+    state: value?.state ?? undefined,
+    postalCode: value?.postalCode ?? undefined,
+  }))
+  veteran: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    streetAddress1: string;
+    streetAddress2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+  } | null;
 }
+
+export class UpdateSessionDto extends PartialType(CreateSessionDto) {}

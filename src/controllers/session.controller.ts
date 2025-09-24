@@ -6,7 +6,6 @@ import {
   Body,
   ParseIntPipe,
   Patch,
-  Delete,
   Query,
   Req,
   UseGuards,
@@ -15,11 +14,14 @@ import {
 import { SessionService } from '../services/session.service';
 import {
   CreateSessionDto,
-  SessionItem,
-  SessionPageResponse,
-  SessionQueryDto,
+  GetSessionsQueryDto,
+  SessionResponseDto,
+  UpdateSessionDto,
 } from '@/dtos/session.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { plainToInstance } from 'class-transformer';
+import { IPaginatedResponse } from '@/types/shared.type';
+import { User } from '@/guards/user.decorator';
 
 @Controller('sessions')
 @UseGuards(JwtAuthGuard)
@@ -27,8 +29,23 @@ export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
   @Post()
-  create(@Body() dto: CreateSessionDto) {
-    return this.sessionService.create(dto);
+  async create(@Body() dto: CreateSessionDto): Promise<SessionResponseDto> {
+    const session = await this.sessionService.createSession(dto);
+    return plainToInstance(SessionResponseDto, session);
+  }
+
+  @Get()
+  async getSessions(
+    @User('sub') userId: number,
+    @Query() query: GetSessionsQueryDto,
+  ): Promise<IPaginatedResponse<SessionResponseDto>> {
+    const result = await this.sessionService.getSessions(userId, query);
+    return {
+      items: result.items.map((item) =>
+        plainToInstance(SessionResponseDto, item),
+      ),
+      total: result.total,
+    };
   }
 
   @Get('/recent/list')
@@ -47,30 +64,12 @@ export class SessionController {
     return this.sessionService.getRecentSessions(req.user.sub, limit);
   }
 
-  @Get()
-  async getSessions(
-    @Req() req: any,
-    @Query() query: SessionQueryDto,
-  ): Promise<SessionPageResponse<SessionItem>> {
-    return this.sessionService.getSessions(req.user.sub, query);
-  }
-
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.sessionService.findOne(id);
-  }
-
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
-    @Body() dto: any,
-  ) {
-    return this.sessionService.update(id, req.user.sub, dto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.sessionService.remove(id);
+    @Body() dto: UpdateSessionDto,
+  ): Promise<SessionResponseDto> {
+    const session = await this.sessionService.updateSession(id, dto);
+    return plainToInstance(SessionResponseDto, session);
   }
 }

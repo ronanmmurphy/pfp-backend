@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { UserRole } from '../enums/user-role.enum';
-import {
-  UpdateUserDto,
-  UserItem,
-  UserPageResponse,
-  UserQueryDto,
-} from '../dtos/user.dto';
-import { plainToClass } from 'class-transformer';
+import { GetUsersQueryDto } from '../dtos/user.dto';
+import { UserRole, UserStatus } from '@/enums/user.enum';
+import { IPaginatedResponse } from '@/types/shared.type';
 
 @Injectable()
 export class UserRepository {
@@ -17,31 +12,17 @@ export class UserRepository {
     @InjectRepository(User) private readonly repo: Repository<User>,
   ) {}
 
-  findByEmail(email: string) {
-    return this.repo.findOne({ where: { email } });
+  async createUser(input: Partial<User>): Promise<User> {
+    const user = this.repo.create(input);
+    return await this.repo.save(user);
   }
 
-  findById(id: number) {
-    return this.repo.findOne({ where: { id } });
-  }
-
-  countByRole(role: UserRole) {
-    return this.repo.count({ where: { role } });
-  }
-
-  async findUsers(query: UserQueryDto): Promise<UserPageResponse<UserItem>> {
+  async findUsers(query: GetUsersQueryDto): Promise<IPaginatedResponse<User>> {
     const where: FindOptionsWhere<User>[] = [];
 
     if (query.search) {
       const search = `%${query.search.trim()}%`;
-      const searchConditions: FindOptionsWhere<User>[] = [];
-
-      searchConditions.push(
-        { firstName: Like(search) },
-        { lastName: Like(search) },
-      );
-
-      where.push(...searchConditions);
+      where.push({ firstName: ILike(search) }, { lastName: ILike(search) });
     }
 
     if (query.role !== undefined) {
@@ -50,6 +31,16 @@ export class UserRepository {
       } else {
         where.forEach((condition) => {
           condition.role = query.role;
+        });
+      }
+    }
+
+    if (query.status !== undefined) {
+      if (where.length === 0) {
+        where.push({ status: query.status });
+      } else {
+        where.forEach((condition) => {
+          condition.status = query.status;
         });
       }
     }
@@ -66,24 +57,22 @@ export class UserRepository {
       take: pageSize,
     });
 
-    // Map to UserItem
-    const userItems: UserItem[] = items.map((user) =>
-      plainToClass(UserItem, user),
-    );
-
-    return { items: userItems, total };
+    return { items, total };
   }
 
-  async createUser(dto: Partial<User>): Promise<User> {
-    const user = this.repo.create(dto);
-    return this.repo.save(user);
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.repo.findOne({ where: { email } });
   }
 
-  async updateUser(id: number, dto: UpdateUserDto): Promise<User | null> {
+  async findById(id: number): Promise<User | null> {
+    return await this.repo.findOne({ where: { id } });
+  }
+
+  async updateUser(id: number, input: Partial<User>): Promise<User | null> {
     const user = await this.repo.findOneBy({ id });
     if (!user) return null;
-    Object.assign(user, dto);
-    return this.repo.save(user);
+    Object.assign(user, input);
+    return await this.repo.save(user);
   }
 
   async deleteUser(id: number): Promise<boolean> {
@@ -94,66 +83,82 @@ export class UserRepository {
   async findPhotographersNear(
     latitude: number,
     longitude: number,
-    radius: number,
-  ): Promise<User[]> {
+    radius: number, // in miles
+  ) {
     const earthRadiusMiles = 3958.8; // Earth's radius in miles
-    return this.repo
+
+    return await this.repo
       .createQueryBuilder('user')
-      .where('user.role = :role', { role: UserRole.PHOTOGRAPHER })
-      .andWhere('user.latitude IS NOT NULL AND user.longitude IS NOT NULL')
       .select([
-        'user.id',
-        'user.firstName',
-        'user.lastName',
-        'user.streetAddress1',
-        'user.streetAddress2',
-        'user.city',
-        'user.state',
-        'user.postalCode',
-        'user.latitude',
-        'user.longitude',
-        `(
-          ${earthRadiusMiles} * acos(
-            cos(radians(:latitude)) * cos(radians(user.latitude)) * 
-            cos(radians(user.longitude) - radians(:longitude)) + 
-            sin(radians(:latitude)) * sin(radians(user.latitude))
-          )
-        ) AS distance`,
+        `"user"."id" AS id`,
+        `"user"."email" AS email`,
+        `"user"."first_name" AS "firstName"`,
+        `"user"."last_name" AS "lastName"`,
+        `"user"."phone_number" AS "phoneNumber"`,
+        `"user"."street_address1" AS "streetAddress1"`,
+        `"user"."street_address2" AS "streetAddress2"`,
+        `"user"."city" AS city`,
+        `"user"."state" AS state`,
+        `"user"."postal_code" AS "postalCode"`,
+        `"user"."latitude" AS latitude`,
+        `"user"."longitude" AS longitude`,
       ])
-      .setParameters({ latitude, longitude })
+      .addSelect(
+        `(${earthRadiusMiles} * acos(
+          cos(radians(:lat)) * cos(radians("user"."latitude")) *
+          cos(radians("user"."longitude") - radians(:lng)) +
+          sin(radians(:lat)) * sin(radians("user"."latitude"))
+      ))`,
+        'distance',
+      )
+      .where(`"user"."role" = :role`, { role: 1 }) // adjust enum
+      .andWhere(`"user"."latitude" IS NOT NULL`)
+      .andWhere(`"user"."longitude" IS NOT NULL`)
       .andWhere(
-        `(
-          ${earthRadiusMiles} * acos(
-            cos(radians(:latitude)) * cos(radians(user.latitude)) * 
-            cos(radians(user.longitude) - radians(:longitude)) + 
-            sin(radians(:latitude)) * sin(radians(user.latitude))
-          )
-        ) <= :radius`,
-        { radius },
+        `(${earthRadiusMiles} * acos(
+          cos(radians(:lat)) * cos(radians("user"."latitude")) *
+          cos(radians("user"."longitude") - radians(:lng)) +
+          sin(radians(:lat)) * sin(radians("user"."latitude"))
+      )) <= :radius`,
       )
       .orderBy('distance', 'ASC')
-      .getRawMany()
-      .then((results) =>
-        results.map((result) => ({
-          ...result,
-          // id: parseInt(result.user_id, 10),
-          // latitude: parseFloat(result.user_latitude),
-          // longitude: parseFloat(result.user_longitude),
-          // distance: parseFloat(result.distance),
-        })),
-      );
+      .setParameters({ lat: latitude, lng: longitude, radius })
+      .getRawMany();
   }
 
   async getUserCoordinates(
     userId: number,
   ): Promise<{ latitude: number; longitude: number } | null> {
     const user = await this.repo.findOneBy({ id: userId });
-    if (!user) return null;
+    if (!user || user.latitude == null || user.longitude == null) return null;
+    return { latitude: user.latitude, longitude: user.longitude };
+  }
 
-    if (user.latitude != null && user.longitude != null) {
-      return { latitude: user.latitude, longitude: user.longitude };
+  async countByRoleGroupedByStatus(): Promise<
+    Record<UserRole, Record<UserStatus, number>>
+  > {
+    const qb = this.repo
+      .createQueryBuilder('user')
+      .select('user.role', 'role')
+      .addSelect('user.status', 'status')
+      .addSelect('COUNT(user.id)', 'count')
+      .groupBy('user.role')
+      .addGroupBy('user.status');
+
+    const result = await qb.getRawMany<{
+      role: string;
+      status: string;
+      count: string;
+    }>();
+
+    // Convert to nested object: { [role]: { [status]: count } }
+    const counts: Record<UserRole, Record<UserStatus, number>> = {} as any;
+
+    for (const { role, status, count } of result) {
+      if (!counts[role]) counts[role] = {} as any;
+      counts[role][status] = Number(count);
     }
 
-    return null;
+    return counts;
   }
 }

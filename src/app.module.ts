@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UserRepository } from './repositories/user.repository';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtStrategy } from './guards/jwt.strategy';
 import { SessionController } from './controllers/session.controller';
 import { SessionService } from './services/session.service';
 import { SessionRepository } from './repositories/session.repository';
@@ -17,6 +17,8 @@ import { StatsController } from './controllers/stats.controller';
 import { StatsService } from './services/stats.service';
 import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -39,6 +41,10 @@ import { UserService } from './services/user.service';
     }),
     TypeOrmModule.forFeature([User, Session]),
     JwtModule.register({}),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'uploads'), // <-- '..' because uploads is next to src
+      serveRoot: '/uploads', // URL prefix
+    }),
   ],
   controllers: [
     AppController,

@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { SessionStatus } from '../enums/session-status.enum';
+import { SessionStatus } from '../enums/session.enum';
 import { User } from './user.entity';
 
 @Entity('sessions')
@@ -25,7 +25,7 @@ export class Session extends BaseEntity {
     name: 'status',
     type: 'enum',
     enum: SessionStatus,
-    default: SessionStatus.REQUESTED,
+    default: SessionStatus.SCHEDULED,
   })
   status: SessionStatus;
 
@@ -34,6 +34,12 @@ export class Session extends BaseEntity {
 
   @Column({ name: 'expiration_date', type: 'timestamptz', nullable: true })
   expirationDate?: Date | null;
+
+  @Column({ name: 'photographer_feedback', type: 'text', nullable: true })
+  photographerFeedback?: string | null;
+
+  @Column({ name: 'veteran_feedback', type: 'text', nullable: true })
+  veteranFeedback?: string | null;
 
   // Many sessions per photographer user
   @ManyToOne(() => User, { eager: false, onDelete: 'CASCADE' })

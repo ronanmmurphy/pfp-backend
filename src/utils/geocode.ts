@@ -1,10 +1,5 @@
+import { AddressSuggestionsResponseDto } from '@/dtos/user.dto';
 import axios from 'axios';
-
-export interface GeocodeResult {
-  displayName: string;
-  latitude: number;
-  longitude: number;
-}
 
 export async function geocodeAddress(
   streetAddress1: string,
@@ -12,7 +7,7 @@ export async function geocodeAddress(
   city: string | null | undefined,
   state: string | null | undefined,
   postalCode: string | null | undefined,
-): Promise<GeocodeResult[]> {
+): Promise<AddressSuggestionsResponseDto[]> {
   try {
     const addressParts = [
       streetAddress1,

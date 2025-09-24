@@ -1,8 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { UserRole } from '../enums/user-role.enum';
-import { Eligibility } from '../enums/eligibility.enum';
-import { MilitaryBranchAffiliation } from '../enums/military-branch.enum';
+import {
+  Eligibility,
+  MilitaryBranchAffiliation,
+  UserRole,
+  UserStatus,
+} from '../enums/user.enum';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -24,6 +27,9 @@ export class User extends BaseEntity {
 
   @Column({ name: 'role', type: 'enum', enum: UserRole })
   role: UserRole;
+
+  @Column({ name: 'status', type: 'enum', enum: UserStatus })
+  status: UserStatus;
 
   @Column({ name: 'phone_number', type: 'varchar', length: 50 })
   phoneNumber: string;
@@ -84,9 +90,155 @@ export class User extends BaseEntity {
   @Column({ name: 'military_ets_date', type: 'date', nullable: true })
   militaryETSDate?: Date | null;
 
-  @Column({ name: 'latitude', type: 'float8', nullable: true })
-  latitude?: number;
+  @Column({ name: 'latitude', type: 'float8' })
+  latitude: number;
 
-  @Column({ name: 'longitude', type: 'float8', nullable: true })
-  longitude?: number;
+  @Column({ name: 'longitude', type: 'float8' })
+  longitude: number;
+
+  @Column({
+    name: 'reason_for_denying',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  reasonForDenying?: string | null;
+
+  @Column({ name: 'max_sessions_per_month', type: 'int', nullable: true })
+  maxSessionsPerMonth?: number | null;
+
+  // Photographer Onboarding
+  @Column({
+    name: 'mailing_street_address1',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  mailingStreetAddress1?: string | null;
+
+  @Column({
+    name: 'mailing_street_address2',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  mailingStreetAddress2?: string | null;
+
+  @Column({
+    name: 'mailing_city',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  mailingCity?: string | null;
+
+  @Column({
+    name: 'mailing_state',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  mailingState?: string | null;
+
+  @Column({
+    name: 'mailing_postal_code',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  mailingPostalCode?: string | null;
+
+  @Column({
+    name: 'closest_base',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  closestBase?: string | null;
+
+  @Column({
+    name: 'agree_to_criminal_background_check',
+    type: 'boolean',
+    nullable: true,
+  })
+  agreeToCriminalBackgroundCheck?: boolean | null;
+
+  @Column({
+    name: 'x_link',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  xLink?: string | null;
+
+  @Column({
+    name: 'facebook_link',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  facebookLink?: string | null;
+
+  @Column({
+    name: 'linkedin_link',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  linkedinLink?: string | null;
+
+  @Column({
+    name: 'instagram_link',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  instagramLink?: string | null;
+
+  @Column({ name: 'is_home_studio', type: 'boolean', nullable: true })
+  isHomeStudio?: boolean | null;
+
+  @Column({
+    name: 'part_of_home_studio',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  partOfHomeStudio?: string | null;
+
+  @Column({ name: 'is_separate_entrance', type: 'boolean', nullable: true })
+  isSeparateEntrance?: boolean | null;
+
+  @Column({
+    name: 'acknowledge_home_studio_agreement',
+    type: 'boolean',
+    nullable: true,
+  })
+  acknowledgeHomeStudioAgreement?: boolean | null;
+
+  @Column({ name: 'is_studio_ada_accessible', type: 'boolean', nullable: true })
+  isStudioAdaAccessible?: boolean | null;
+
+  @Column({
+    name: 'agree_to_volunteer_agreement',
+    type: 'boolean',
+    nullable: true,
+  })
+  agreeToVolunteerAgreement?: boolean | null;
+
+  @Column({
+    name: 'studio_space_images',
+    type: 'text',
+    array: true,
+    default: [],
+  })
+  studioSpaceImages: string[];
+
+  @Column({
+    name: 'proof_of_insurance_images',
+    type: 'text',
+    array: true,
+    default: [],
+  })
+  proofOfInsuranceImages: string[];
 }
