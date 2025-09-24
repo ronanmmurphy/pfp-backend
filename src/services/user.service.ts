@@ -107,9 +107,11 @@ export class UserService {
       lastName: dto.lastName,
       role: Number(dto.role) as UserRole,
       status:
-        Number(dto.role) === UserRole.PHOTOGRAPHER
-          ? UserStatus.PENDING
-          : UserStatus.APPROVED,
+        dto.status !== null && dto.status !== undefined
+          ? (Number(dto.status) as UserStatus)
+          : Number(dto.role) === UserRole.PHOTOGRAPHER
+            ? UserStatus.PENDING
+            : UserStatus.APPROVED,
       phoneNumber: dto.phoneNumber,
       streetAddress1: dto.streetAddress1,
       streetAddress2: dto?.streetAddress2 ?? null,
