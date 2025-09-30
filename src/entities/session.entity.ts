@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { SessionStatus } from '../enums/session.enum';
+import { SessionOutcome, SessionStatus } from '../enums/session.enum';
 import { User } from './user.entity';
 
 @Entity('sessions')
@@ -32,11 +32,30 @@ export class Session extends BaseEntity {
   @Column({ name: 'date', type: 'timestamptz' })
   date: Date;
 
-  @Column({ name: 'expiration_date', type: 'timestamptz', nullable: true })
-  expirationDate?: Date | null;
+  @Column({
+    name: 'outcome_photographer',
+    type: 'enum',
+    enum: SessionOutcome,
+    nullable: true,
+  })
+  outcomePhotographer?: SessionOutcome | null;
+
+  @Column({ name: 'rate_photographer', type: 'int', nullable: true })
+  ratePhotographer?: number | null;
 
   @Column({ name: 'photographer_feedback', type: 'text', nullable: true })
   photographerFeedback?: string | null;
+
+  @Column({
+    name: 'outcome_veteran',
+    type: 'enum',
+    enum: SessionOutcome,
+    nullable: true,
+  })
+  outcomeVeteran?: SessionOutcome | null;
+
+  @Column({ name: 'rate_veteran', type: 'int', nullable: true })
+  rateVeteran?: number | null;
 
   @Column({ name: 'veteran_feedback', type: 'text', nullable: true })
   veteranFeedback?: string | null;

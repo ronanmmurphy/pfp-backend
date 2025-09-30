@@ -68,6 +68,10 @@ export class UserRepository {
     return await this.repo.findOne({ where: { id } });
   }
 
+  async findByRole(role: UserRole): Promise<User[]> {
+    return await this.repo.find({ where: { role } });
+  }
+
   async updateUser(id: number, input: Partial<User>): Promise<User | null> {
     const user = await this.repo.findOneBy({ id });
     if (!user) return null;

@@ -19,6 +19,12 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { Referral } from './entities/referral.entity';
+import { ReferralController } from './controllers/referral.controller';
+import { ReferralService } from './services/referral.service';
+import { ReferralRepository } from './repositories/referral.repository';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './services/cron.service';
 
 @Module({
   imports: [
@@ -33,18 +39,19 @@ import { join } from 'path';
         username: config.get('DATABASE_USER'),
         password: config.get('DATABASE_PASSWORD'),
         database: config.get('DATABASE_NAME'),
-        entities: [User, Session],
+        entities: [User, Session, Referral],
         synchronize: false,
         migrations: ['dist/migrations/*.js'],
         migrationsRun: false,
       }),
     }),
-    TypeOrmModule.forFeature([User, Session]),
+    TypeOrmModule.forFeature([User, Session, Referral]),
     JwtModule.register({}),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'uploads'), // <-- '..' because uploads is next to src
       serveRoot: '/uploads', // URL prefix
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     AppController,
@@ -52,6 +59,7 @@ import { join } from 'path';
     UserController,
     StatsController,
     SessionController,
+    ReferralController,
   ],
   providers: [
     AppService,
@@ -59,8 +67,11 @@ import { join } from 'path';
     UserService,
     StatsService,
     SessionService,
+    ReferralService,
+    CronService,
     UserRepository,
     SessionRepository,
+    ReferralRepository,
     JwtStrategy,
   ],
 })

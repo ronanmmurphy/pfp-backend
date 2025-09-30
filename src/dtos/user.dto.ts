@@ -60,11 +60,11 @@ export class CreateUserDto {
 
   @IsOptional() @IsString() streetAddress2?: string;
 
-  @IsOptional() @IsString() city?: string;
+  @IsString() @IsNotEmpty() city: string;
 
-  @IsOptional() @IsString() state?: string;
+  @IsString() @IsNotEmpty() state?: string;
 
-  @IsOptional() @IsString() postalCode?: string;
+  @IsString() @IsNotEmpty() postalCode?: string;
 
   @IsNumber() latitude: number;
 
@@ -176,11 +176,11 @@ export class UserResponseDto {
 
   streetAddress2?: string | null;
 
-  city?: string | null;
+  city: string;
 
-  state?: string | null;
+  state: string;
 
-  postalCode?: string | null;
+  postalCode: string;
 
   latitude: number;
 
@@ -266,28 +266,22 @@ export class NearbyQueryDto {
 }
 
 export class NearbyPhotographerResponseDto {
+  @Expose()
   id: number;
 
-  email: string;
+  @Expose()
+  city: string;
 
-  firstName: string;
+  @Expose()
+  state: string;
 
-  lastName: string;
+  @Expose()
+  postalCode: string;
 
-  phoneNumber: string;
-
-  streetAddress1: string;
-
-  streetAddress2?: string | null;
-
-  city?: string | null;
-
-  state?: string | null;
-
-  postalCode?: string | null;
-
+  @Expose()
   latitude: number;
 
+  @Expose()
   longitude: number;
 
   @Expose()

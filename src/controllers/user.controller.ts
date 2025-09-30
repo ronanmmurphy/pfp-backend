@@ -9,6 +9,7 @@ import {
   Body,
   UseInterceptors,
   UploadedFiles,
+  UseGuards,
 } from '@nestjs/common';
 import { ParseIntPipe } from '@nestjs/common';
 import {
@@ -26,6 +27,8 @@ import { plainToInstance } from 'class-transformer';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { JwtAuthGuard } from '@/guards/jwt-auth.guard';
+import { User } from '@/guards/user.decorator';
 
 @Controller('users')
 export class UserController {
@@ -89,12 +92,14 @@ export class UserController {
       }),
     }),
   )
+  @UseGuards(JwtAuthGuard)
   async updateUser(
+    @User('sub') userId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<UserResponseDto> {
-    const user = await this.userService.updateUser(id, dto, files);
+    const user = await this.userService.updateUser(userId, id, dto, files);
     return plainToInstance(UserResponseDto, user);
   }
 
@@ -114,7 +119,9 @@ export class UserController {
     );
 
     return photographers.map((photographer) =>
-      plainToInstance(NearbyPhotographerResponseDto, photographer),
+      plainToInstance(NearbyPhotographerResponseDto, photographer, {
+        excludeExtraneousValues: true,
+      }),
     );
   }
 }

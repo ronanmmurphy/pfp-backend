@@ -23,6 +23,7 @@ import {
 import { ensureRequiredFields } from '@/utils/validation';
 import { IPaginatedResponse } from '@/types/shared.type';
 import { geocodeAddress } from '@/utils/geocode';
+import { EmailUtil } from '@/utils/email.util';
 
 @Injectable()
 export class UserService {
@@ -110,14 +111,14 @@ export class UserService {
         dto.status !== null && dto.status !== undefined
           ? (Number(dto.status) as UserStatus)
           : Number(dto.role) === UserRole.PHOTOGRAPHER
-            ? UserStatus.PENDING
+            ? UserStatus.ONBOARDING
             : UserStatus.APPROVED,
       phoneNumber: dto.phoneNumber,
       streetAddress1: dto.streetAddress1,
       streetAddress2: dto?.streetAddress2 ?? null,
-      city: dto?.city ?? null,
-      state: dto?.state ?? null,
-      postalCode: dto?.postalCode ?? null,
+      city: dto.city,
+      state: dto.state,
+      postalCode: dto.postalCode,
       latitude: dto.latitude,
       longitude: dto.longitude,
       referredBy: dto?.referredBy ?? null,
@@ -223,6 +224,7 @@ export class UserService {
   }
 
   async updateUser(
+    userId: number,
     id: number,
     dto: UpdateUserDto,
     files?: Express.Multer.File[],
@@ -302,8 +304,46 @@ export class UserService {
         (f) => `${process.env.APP_URL}/uploads/users/${f.filename}`,
       );
     }
-    const user = await this.userRepo.updateUser(id, userData);
+    await this.userRepo.updateUser(id, userData);
+    const user = await this.userRepo.findById(id);
     if (!user) throw new NotFoundException('User not found');
+
+    const currentUser = await this.userRepo.findById(userId);
+
+    if (
+      user.role === UserRole.PHOTOGRAPHER &&
+      dto.agreeToCriminalBackgroundCheck &&
+      currentUser?.role === UserRole.PHOTOGRAPHER
+    ) {
+      const admins = await this.userRepo.findByRole(UserRole.ADMIN);
+      if (admins.length > 0) {
+        for (let i = 0; i < admins.length; i++) {
+          await EmailUtil.sendPhotographerOnboardingNotification(
+            admins[i].email,
+            admins[i].firstName,
+            user.firstName,
+            user.lastName,
+          );
+        }
+      }
+    }
+
+    if (
+      user.role === UserRole.PHOTOGRAPHER &&
+      user.status === UserStatus.APPROVED &&
+      currentUser?.role === UserRole.ADMIN
+    ) {
+      await EmailUtil.sendApprovalEmail(user.email, user.firstName);
+    }
+
+    if (
+      user.role === UserRole.PHOTOGRAPHER &&
+      user.status === UserStatus.DENIED &&
+      currentUser?.role === UserRole.ADMIN
+    ) {
+      await EmailUtil.sendDenialEmail(user.email, user.firstName);
+    }
+
     return user;
   }
 

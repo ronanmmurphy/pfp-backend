@@ -27,10 +27,7 @@ export class StatsService {
         this.userRepo.countByRoleGroupedByStatus(),
         this.sessionRepo.countByStatuses([SessionStatus.COMPLETED]),
         this.sessionRepo.countByStatuses([SessionStatus.CANCELED]),
-        this.sessionRepo.countByStatuses([
-          SessionStatus.SCHEDULED,
-          SessionStatus.RESCHEDULED,
-        ]),
+        this.sessionRepo.countByStatuses([SessionStatus.SCHEDULED]),
       ]);
 
     return {
@@ -41,8 +38,6 @@ export class StatsService {
       photographers: Object.values(
         userCounts[UserRole.PHOTOGRAPHER] || {},
       ).reduce((a, b) => a + b, 0),
-      pendingPhotographers:
-        userCounts[UserRole.PHOTOGRAPHER]?.[UserStatus.PENDING] || 0,
       onboardingPhotographers:
         userCounts[UserRole.PHOTOGRAPHER]?.[UserStatus.ONBOARDING] || 0,
       approvedPhotographers:
@@ -74,7 +69,6 @@ export class StatsService {
         ]),
         this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
           SessionStatus.SCHEDULED,
-          SessionStatus.RESCHEDULED,
         ]),
       ]);
 

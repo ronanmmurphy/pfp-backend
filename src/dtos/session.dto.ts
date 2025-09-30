@@ -9,7 +9,7 @@ import {
   Max,
   ValidateIf,
 } from 'class-validator';
-import { SessionStatus } from '../enums/session.enum';
+import { SessionOutcome, SessionStatus } from '../enums/session.enum';
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose, Transform } from 'class-transformer';
 
@@ -22,9 +22,15 @@ export class CreateSessionDto {
 
   @IsDateString() date: string;
 
-  @IsOptional() @IsDateString() expirationDate?: string;
+  @IsOptional() @IsEnum(SessionOutcome) outcomePhotographer?: SessionOutcome;
+
+  @IsOptional() @IsInt() ratePhotographer?: number;
 
   @IsOptional() @IsString() photographerFeedback?: string;
+
+  @IsOptional() @IsEnum(SessionOutcome) outcomeVeteran?: SessionOutcome;
+
+  @IsOptional() @IsInt() rateVeteran?: number;
 
   @IsOptional() @IsString() veteranFeedback?: string;
 
@@ -80,18 +86,15 @@ export class SessionResponseDto {
   })
   date: string;
 
-  @Transform(({ value }) => {
-    if (value instanceof Date && !isNaN(value.getTime())) {
-      return value.toISOString();
-    }
-    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-      return value;
-    }
-    return null;
-  })
-  expirationDate?: string | null;
+  outcomePhotographer?: SessionOutcome | null;
+
+  ratePhotographer?: number | null;
 
   photographerFeedback?: string | null;
+
+  outcomeVeteran?: SessionOutcome | null;
+
+  rateVeteran?: number | null;
 
   veteranFeedback?: string | null;
 

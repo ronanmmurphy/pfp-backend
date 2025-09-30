@@ -45,14 +45,14 @@ export class User extends BaseEntity {
   })
   streetAddress2?: string | null;
 
-  @Column({ name: 'city', type: 'varchar', length: 100, nullable: true })
-  city?: string | null;
+  @Column({ name: 'city', type: 'varchar', length: 100 })
+  city: string;
 
-  @Column({ name: 'state', type: 'varchar', length: 100, nullable: true })
-  state?: string | null;
+  @Column({ name: 'state', type: 'varchar', length: 100 })
+  state: string;
 
-  @Column({ name: 'postal_code', type: 'varchar', length: 20, nullable: true })
-  postalCode?: string | null;
+  @Column({ name: 'postal_code', type: 'varchar', length: 20 })
+  postalCode: string;
 
   @Column({ name: 'website', type: 'varchar', length: 255, nullable: true })
   website?: string | null;

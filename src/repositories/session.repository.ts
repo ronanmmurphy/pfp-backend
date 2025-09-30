@@ -220,4 +220,23 @@ export class SessionRepository {
       });
     }
   }
+
+  async findOverdueSessions(oneWeekAgo: Date): Promise<Session[]> {
+    return await this.repo
+      .createQueryBuilder('session')
+      .leftJoinAndSelect('session.photographer', 'photographer')
+      .leftJoinAndSelect('session.veteran', 'veteran')
+      .where('session.status = :status', { status: SessionStatus.SCHEDULED })
+      .andWhere('session.date <= :oneWeekAgo', { oneWeekAgo })
+      .select([
+        'session',
+        'photographer.id',
+        'photographer.email',
+        'photographer.firstName',
+        'veteran.id',
+        'veteran.email',
+        'veteran.firstName',
+      ])
+      .getMany();
+  }
 }

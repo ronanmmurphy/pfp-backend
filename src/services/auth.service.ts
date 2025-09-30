@@ -18,6 +18,7 @@ import {
 import { ensureRequiredFields } from '@/utils/validation';
 import { User } from '@/entities/user.entity';
 import { CreateUserDto } from '@/dtos/user.dto';
+import { EmailUtil } from '@/utils/email.util';
 
 @Injectable()
 export class AuthService {
@@ -88,14 +89,14 @@ export class AuthService {
       role: Number(dto.role) as UserRole,
       status:
         Number(dto.role) === UserRole.PHOTOGRAPHER
-          ? UserStatus.PENDING
+          ? UserStatus.ONBOARDING
           : UserStatus.APPROVED,
       phoneNumber: dto.phoneNumber,
       streetAddress1: dto.streetAddress1,
       streetAddress2: dto?.streetAddress2 ?? null,
-      city: dto?.city ?? null,
-      state: dto?.state ?? null,
-      postalCode: dto?.postalCode ?? null,
+      city: dto.city,
+      state: dto.state,
+      postalCode: dto.postalCode,
       latitude: dto.latitude,
       longitude: dto.longitude,
       website:
@@ -124,6 +125,11 @@ export class AuthService {
     };
 
     const user = await this.userRepo.createUser(userData);
+
+    // Send photographer welcome email
+    if (user.role === UserRole.PHOTOGRAPHER) {
+      await EmailUtil.sendOnboardingEmail(user.email, user.firstName);
+    }
 
     return await this.issueTokens(user.id, user.email);
   }
