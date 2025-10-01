@@ -312,7 +312,7 @@ export class UserService {
 
     if (
       user.role === UserRole.PHOTOGRAPHER &&
-      dto.agreeToCriminalBackgroundCheck &&
+      dto.closestBase &&
       currentUser?.role === UserRole.PHOTOGRAPHER
     ) {
       const admins = await this.userRepo.findByRole(UserRole.ADMIN);

@@ -131,6 +131,10 @@ export class AuthService {
       await EmailUtil.sendOnboardingEmail(user.email, user.firstName);
     }
 
+    if (user.role === UserRole.VETERAN) {
+      await EmailUtil.sendVeteranWelcomeEmail(user.email, user.firstName);
+    }
+
     return await this.issueTokens(user.id, user.email);
   }
 

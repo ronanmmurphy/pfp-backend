@@ -91,6 +91,56 @@ export class EmailUtil {
     }
   }
 
+  static async sendVeteranWelcomeEmail(to: string, name: string) {
+    try {
+      const transporter = this.getTransporter();
+      const subject = 'Welcome to Portraits For Patriots®';
+      const html = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 15px; color: #333;">
+          <p>Hello ${name},</p>
+
+          <p>Welcome to Portraits For Patriots®. We’re honored to have you join our community.</p>
+  
+          <p>As a national non-profit organization, we’ve had the privilege of serving thousands of transitioning service members and their families with a professional portrait. 
+          Each one is a gesture of dignity, respect, and support during a pivotal chapter of their lives.</p>
+
+          <p>Through the generosity of our volunteer photographers, we provide free professional headshots to veterans like you. Whether you’re updating your resume, 
+          LinkedIn profile, or preparing for new opportunities, our goal is to help you put your best face forward.</p?
+  
+          <p>One last thing. In this increasingly divisive political environment, many would have us believe one side or the other has a monopoly on what defines patriotism. 
+          We use Merriam-Webster’s definition. Nothing more, nothing less:</p>
+  
+          <blockquote style="margin: 10px 0; padding: 10px; border-left: 3px solid #2c3e50; background: #f9f9f9;">
+            <p style="margin: 0;">
+              <strong>patriotism</strong> [noun]<br/>
+              pa·tri·ot·ism (ˈpā-trē-ə-ˌti-zəm): love for or devotion to one’s country
+            </p>
+          </blockquote>
+  
+          <p>Portraits For Patriots® is a non-political, military family support and education program. We are dedicated to empowering service members, military spouses, and Gold Star families 
+          through photography and professional development—without ties to any political party, administration, or ideology.</p>
+  
+          <p>We’re grateful for your service and thrilled to support your next chapter.</p>
+  
+          <p>
+            Gratefully,<br/>
+            Sarah Firth<br/>
+            Director of Programs<br/>
+            Portraits For Patriots®
+          </p>
+        </div>
+      `;
+      await transporter.sendMail({
+        from: `"Portraits for Patriots" <${process.env.SMTP_FROM}>`,
+        to,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error('Failed to send onboarding email:', error);
+    }
+  }
+
   static async sendPhotographerOnboardingNotification(
     to: string,
     adminName: string,
