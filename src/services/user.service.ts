@@ -111,7 +111,7 @@ export class UserService {
         dto.status !== null && dto.status !== undefined
           ? (Number(dto.status) as UserStatus)
           : Number(dto.role) === UserRole.PHOTOGRAPHER
-            ? UserStatus.ONBOARDING
+            ? UserStatus.PENDING
             : UserStatus.APPROVED,
       phoneNumber: dto.phoneNumber,
       streetAddress1: dto.streetAddress1,
@@ -125,10 +125,8 @@ export class UserService {
       // Photographer
       website:
         dto.role === UserRole.PHOTOGRAPHER ? (dto.website ?? null) : null,
-      maxSessionsPerMonth:
-        dto.role === UserRole.PHOTOGRAPHER
-          ? (dto.maxSessionsPerMonth ?? null)
-          : null,
+      openToReferrals:
+        dto.role === UserRole.PHOTOGRAPHER ? dto.openToReferrals : true,
       // Photographer Onboarding
       mailingStreetAddress1:
         dto.role === UserRole.PHOTOGRAPHER
@@ -152,13 +150,8 @@ export class UserService {
         dto.role === UserRole.PHOTOGRAPHER
           ? (dto.agreeToCriminalBackgroundCheck ?? null)
           : null,
-      xLink: dto.role === UserRole.PHOTOGRAPHER ? (dto.xLink ?? null) : null,
-      facebookLink:
-        dto.role === UserRole.PHOTOGRAPHER ? (dto.facebookLink ?? null) : null,
-      linkedinLink:
-        dto.role === UserRole.PHOTOGRAPHER ? (dto.linkedinLink ?? null) : null,
-      instagramLink:
-        dto.role === UserRole.PHOTOGRAPHER ? (dto.instagramLink ?? null) : null,
+      socialMedia:
+        dto.role === UserRole.PHOTOGRAPHER ? (dto.socialMedia ?? null) : null,
       isHomeStudio:
         dto.role === UserRole.PHOTOGRAPHER ? (dto.isHomeStudio ?? null) : null,
       partOfHomeStudio:
@@ -228,6 +221,7 @@ export class UserService {
     id: number,
     dto: UpdateUserDto,
     files?: Express.Multer.File[],
+    from?: string,
   ): Promise<User> {
     const studioSpaceFiles =
       files?.filter((f) => f.fieldname === 'studioSpaceImages') || [];
@@ -244,7 +238,7 @@ export class UserService {
       firstName: dto?.firstName ?? undefined,
       lastName: dto?.lastName ?? undefined,
       role: dto?.role ? (Number(dto.role) as UserRole) : undefined,
-      status: dto?.status ? (Number(dto.status) as UserStatus) : undefined,
+      status: dto?.status,
       phoneNumber: dto?.phoneNumber ?? undefined,
       streetAddress1: dto?.streetAddress1 ?? undefined,
       streetAddress2: dto?.streetAddress2 ?? undefined,
@@ -260,7 +254,7 @@ export class UserService {
           : null,
       // Photographer
       website: dto?.website ?? undefined,
-      maxSessionsPerMonth: dto?.maxSessionsPerMonth ?? undefined,
+      openToReferrals: dto.openToReferrals,
       // Photographer Onboarding
       mailingStreetAddress1: dto?.mailingStreetAddress1 ?? undefined,
       mailingStreetAddress2: dto?.mailingStreetAddress2 ?? undefined,
@@ -270,10 +264,7 @@ export class UserService {
       closestBase: dto?.closestBase ?? undefined,
       agreeToCriminalBackgroundCheck:
         dto?.agreeToCriminalBackgroundCheck ?? undefined,
-      xLink: dto?.xLink ?? undefined,
-      facebookLink: dto?.facebookLink ?? undefined,
-      linkedinLink: dto?.linkedinLink ?? undefined,
-      instagramLink: dto?.instagramLink ?? undefined,
+      socialMedia: dto?.socialMedia ?? undefined,
       isHomeStudio: dto?.isHomeStudio ?? undefined,
       partOfHomeStudio: dto?.partOfHomeStudio ?? undefined,
       isSeparateEntrance: dto?.isSeparateEntrance ?? undefined,
@@ -310,11 +301,7 @@ export class UserService {
 
     const currentUser = await this.userRepo.findById(userId);
 
-    if (
-      user.role === UserRole.PHOTOGRAPHER &&
-      dto.closestBase &&
-      currentUser?.role === UserRole.PHOTOGRAPHER
-    ) {
+    if (user.role === UserRole.PHOTOGRAPHER && from === 'onboarding') {
       const admins = await this.userRepo.findByRole(UserRole.ADMIN);
       if (admins.length > 0) {
         for (let i = 0; i < admins.length; i++) {
@@ -330,18 +317,22 @@ export class UserService {
 
     if (
       user.role === UserRole.PHOTOGRAPHER &&
-      user.status === UserStatus.APPROVED &&
       currentUser?.role === UserRole.ADMIN
     ) {
-      await EmailUtil.sendApprovalEmail(user.email, user.firstName);
-    }
-
-    if (
-      user.role === UserRole.PHOTOGRAPHER &&
-      user.status === UserStatus.DENIED &&
-      currentUser?.role === UserRole.ADMIN
-    ) {
-      await EmailUtil.sendDenialEmail(user.email, user.firstName);
+      switch (user.status) {
+        case UserStatus.APPROVED:
+          await EmailUtil.sendApprovalEmail(user.email, user.firstName);
+          break;
+        case UserStatus.DENIED:
+          await EmailUtil.sendDenialEmail(user.email, user.firstName);
+          break;
+        case UserStatus.ONBOARDING:
+          await EmailUtil.sendOnboardingEmail(user.email, user.firstName);
+          break;
+        case UserStatus.PENDING:
+          await EmailUtil.sendPendingEmail(user.email, user.firstName);
+          break;
+      }
     }
 
     return user;

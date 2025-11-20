@@ -22,12 +22,11 @@ export class StatsService {
       throw new ForbiddenException('Admins only');
     }
 
-    const [userCounts, sessionsCompleted, sessionsCanceled, sessionsActive] =
+    const [userCounts, sessionsCompleted, sessionsIncomplete] =
       await Promise.all([
         this.userRepo.countByRoleGroupedByStatus(),
         this.sessionRepo.countByStatuses([SessionStatus.COMPLETED]),
-        this.sessionRepo.countByStatuses([SessionStatus.CANCELED]),
-        this.sessionRepo.countByStatuses([SessionStatus.SCHEDULED]),
+        this.sessionRepo.countByStatuses([SessionStatus.INCOMPLETE]),
       ]);
 
     return {
@@ -38,6 +37,8 @@ export class StatsService {
       photographers: Object.values(
         userCounts[UserRole.PHOTOGRAPHER] || {},
       ).reduce((a, b) => a + b, 0),
+      pendingPhotographers:
+        userCounts[UserRole.PHOTOGRAPHER]?.[UserStatus.PENDING] || 0,
       onboardingPhotographers:
         userCounts[UserRole.PHOTOGRAPHER]?.[UserStatus.ONBOARDING] || 0,
       approvedPhotographers:
@@ -47,8 +48,7 @@ export class StatsService {
       veteransByStatus: userCounts[UserRole.VETERAN] || {},
       photographersByStatus: userCounts[UserRole.PHOTOGRAPHER] || {},
       sessionsCompleted,
-      sessionsCanceled,
-      sessionsActive,
+      sessionsIncomplete,
     };
   }
 
@@ -59,19 +59,15 @@ export class StatsService {
 
     const role = user.role;
 
-    const [sessionsCompleted, sessionsCanceled, sessionsActive] =
-      await Promise.all([
-        this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
-          SessionStatus.COMPLETED,
-        ]),
-        this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
-          SessionStatus.CANCELED,
-        ]),
-        this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
-          SessionStatus.SCHEDULED,
-        ]),
-      ]);
+    const [sessionsCompleted, sessionsIncomplete] = await Promise.all([
+      this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
+        SessionStatus.COMPLETED,
+      ]),
+      this.sessionRepo.countForUserByStatusesAndRole(userId, role, [
+        SessionStatus.INCOMPLETE,
+      ]),
+    ]);
 
-    return { sessionsCompleted, sessionsCanceled, sessionsActive };
+    return { sessionsCompleted, sessionsIncomplete };
   }
 }

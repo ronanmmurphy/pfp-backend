@@ -1,7 +1,9 @@
-import { CreateReferralDto } from '@/dtos/referral.dto';
+import { CreateReferralDto, GetReferralsQueryDto } from '@/dtos/referral.dto';
 import { Referral } from '@/entities/referral.entity';
+import { ReferralStatus } from '@/enums/referral.enum';
 import { ReferralRepository } from '@/repositories/referral.repository';
 import { UserRepository } from '@/repositories/user.repository';
+import { IPaginatedResponse } from '@/types/shared.type';
 import { EmailUtil } from '@/utils/email.util';
 import { getLocationText } from '@/utils/user.helper';
 import {
@@ -29,7 +31,8 @@ export class ReferralService {
     }
 
     const referral = await this.referralRepo.findByVeteranId(dto.veteranId);
-    if (referral) throw new ConflictException('You already had a referral');
+    if (referral && referral.status === ReferralStatus.MATCHED)
+      throw new ConflictException('You already had a matched referral');
 
     await EmailUtil.sendInitialPhotographerReferralEmail(
       veteran.email,
@@ -64,9 +67,20 @@ export class ReferralService {
     );
 
     const referralData: Partial<Referral> = {
-      photographerId: dto.photographerId,
-      veteranId: dto.veteranId,
+      photographer,
+      veteran,
+      status: ReferralStatus.MATCHED,
     };
     return await this.referralRepo.createReferral(referralData);
+  }
+
+  async getReferrals(
+    userId: number,
+    query: GetReferralsQueryDto,
+  ): Promise<IPaginatedResponse<Referral>> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    return await this.referralRepo.findReferrals(userId, user.role, query);
   }
 }

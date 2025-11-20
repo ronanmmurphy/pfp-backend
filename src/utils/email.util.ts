@@ -32,6 +32,41 @@ export class EmailUtil {
     }
   }
 
+  static async sendPendingEmail(to: string, name: string) {
+    try {
+      const transporter = this.getTransporter();
+      const subject = 'Your Photographer Application Is Under Review';
+      const html = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 15px; color: #333;">
+          <p>Hello ${name},</p>
+
+          <p>Thank you for signing up to join our program.</p>
+
+          <p>We’ve received your application and it is currently under review by our team.</p>
+
+          <p>No action is required from you at this time. Once the review is complete, we will notify you immediately about the status of your application.</p>
+  
+          <p>We appreciate your interest and patience. If you have any questions in the meantime, feel free to reach out.</p>
+  
+          <p>
+            Gratefully,<br/>
+            Sarah Firth<br/>
+            Director of Programs<br/>
+            Portraits For Patriots®
+          </p>
+        </div>
+      `;
+      await transporter.sendMail({
+        from: `"Portraits for Patriots" <${process.env.SMTP_FROM}>`,
+        to,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error('Failed to send pending email:', error);
+    }
+  }
+
   static async sendOnboardingEmail(to: string, name: string) {
     try {
       const transporter = this.getTransporter();
@@ -389,22 +424,26 @@ export class EmailUtil {
   static async sendSessionReminderEmail(
     to: string,
     name: string,
-    sessionName: string,
+    link: string,
   ) {
     try {
       const transporter = this.getTransporter();
-      const subject = 'Reminder: Please update your session details in the app';
+      const subject = 'Reminder: Please Submit Your Session Feedback';
       const html = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 15px; color: #333;">
           <p>Hi ${name},</p>
 
-          <p>We noticed your session, ${sessionName}, took place about a week ago. The session is still marked as scheduled in the system.</p>
+          <p>This is a friendly reminder to complete your feedback for the recent headshot session.</p>
   
-          <p>When you have a chance, please <strong>log in to the app and update the session status</strong>. If the session is complete or canceled, you can also provide your feedback and final details there.</p>
+          <p>Your feedback helps us improve future sessions and ensure the best experience for everyone.</p>
   
-          <p>Keeping this information current helps us support clients and ensure every session is properly documented.</p>
+          <p>Please click the link below to submit your feedback:</p>
 
-          <p>Thank you for your dedication and for giving your time and talent to this mission.</p>
+          <a href="${link}">${link}</a>
+
+          <p>Thank you for your time and support!</p>
+
+          <p>If you have already submitted your feedback, please disregard this email.</p>
   
           <p>
             Gratefully,<br/>
@@ -419,7 +458,41 @@ export class EmailUtil {
         html,
       });
     } catch (error) {
-      console.error('Failed to send onboarding email:', error);
+      console.error('Failed to send the session reminder email:', error);
+    }
+  }
+
+  static async sendStopEmail(
+    to: string,
+    name: string,
+    firstName: string,
+    lastName: string,
+  ) {
+    try {
+      const transporter = this.getTransporter();
+      const subject = 'Referral Canceled - No Session Scheduled';
+      const html = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 15px; color: #333;">
+          <p>Hi ${name},</p>
+
+          <p>We're writing to inform you that your referral with ${firstName} ${lastName} has been canceled due to no session being scheduled within one month.</p>
+  
+          <p>If you still wish to schedule a session, please contact our support team.</p>
+  
+          <p>
+            Gratefully,<br/>
+            <strong>The Portraits For Patriots® Team</strong>
+          </p>
+        </div>
+      `;
+      await transporter.sendMail({
+        from: `"Portraits for Patriots" <${process.env.SMTP_FROM}>`,
+        to,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error('Failed to send stop email:', error);
     }
   }
 }

@@ -104,8 +104,8 @@ export class User extends BaseEntity {
   })
   reasonForDenying?: string | null;
 
-  @Column({ name: 'max_sessions_per_month', type: 'int', nullable: true })
-  maxSessionsPerMonth?: number | null;
+  @Column({ name: 'open_to_referrals', type: 'boolean', default: true })
+  openToReferrals: boolean;
 
   // Photographer Onboarding
   @Column({
@@ -164,36 +164,12 @@ export class User extends BaseEntity {
   agreeToCriminalBackgroundCheck?: boolean | null;
 
   @Column({
-    name: 'x_link',
+    name: 'social_media',
     type: 'varchar',
     length: 255,
     nullable: true,
   })
-  xLink?: string | null;
-
-  @Column({
-    name: 'facebook_link',
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  facebookLink?: string | null;
-
-  @Column({
-    name: 'linkedin_link',
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  linkedinLink?: string | null;
-
-  @Column({
-    name: 'instagram_link',
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  instagramLink?: string | null;
+  socialMedia?: string | null;
 
   @Column({ name: 'is_home_studio', type: 'boolean', nullable: true })
   isHomeStudio?: boolean | null;

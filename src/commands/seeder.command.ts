@@ -23,6 +23,7 @@ async function seed() {
       postalCode: '123',
       latitude: 0,
       longitude: 0,
+      openToReferrals: true,
     },
     {
       email: 'rmm.contractors@gmail.com',
@@ -38,6 +39,7 @@ async function seed() {
       postalCode: '123',
       latitude: 0,
       longitude: 0,
+      openToReferrals: true,
     },
   ];
 

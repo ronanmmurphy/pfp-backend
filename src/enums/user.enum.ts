@@ -8,6 +8,7 @@ export enum UserStatus {
   ONBOARDING = 0,
   APPROVED = 1,
   DENIED = 2,
+  PENDING = 3,
 }
 
 export enum Eligibility {

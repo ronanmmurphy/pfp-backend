@@ -77,7 +77,7 @@ export class CreateUserDto {
   // Photographer
   @IsOptional() @IsString() website?: string;
 
-  @IsOptional() @IsNumber() maxSessionsPerMonth?: number;
+  @IsBoolean() openToReferrals: boolean;
 
   // Photographer Onboarding
   @IsOptional() @IsString() mailingStreetAddress1?: string;
@@ -94,13 +94,7 @@ export class CreateUserDto {
 
   @IsOptional() @IsBoolean() agreeToCriminalBackgroundCheck?: boolean;
 
-  @IsOptional() @IsString() xLink?: string;
-
-  @IsOptional() @IsString() facebookLink?: string;
-
-  @IsOptional() @IsString() linkedinLink?: string;
-
-  @IsOptional() @IsString() instagramLink?: string;
+  @IsOptional() @IsString() socialMedia?: string;
 
   @IsOptional() @IsBoolean() isHomeStudio?: boolean;
 
@@ -193,7 +187,7 @@ export class UserResponseDto {
   // Photographer
   website?: string | null;
 
-  maxSessionsPerMonth?: number | null;
+  openToReferrals: boolean;
 
   // Photographer Onboarding
   mailingStreetAddress1?: string | null;
@@ -210,13 +204,7 @@ export class UserResponseDto {
 
   agreeToCriminalBackgroundCheck?: boolean | null;
 
-  xLink?: string | null;
-
-  facebookLink?: string | null;
-
-  linkedinLink?: string | null;
-
-  instagramLink?: string | null;
+  socialMedia?: string | null;
 
   isHomeStudio?: boolean | null;
 

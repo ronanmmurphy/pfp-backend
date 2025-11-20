@@ -1,7 +1,6 @@
 export enum SessionStatus {
-  SCHEDULED = 0,
+  INCOMPLETE = 0,
   COMPLETED = 1,
-  CANCELED = 2,
 }
 
 export enum SessionOutcome {

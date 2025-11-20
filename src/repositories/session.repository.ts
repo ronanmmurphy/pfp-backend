@@ -49,6 +49,10 @@ export class SessionRepository {
     });
   }
 
+  async findOneBy(where: any) {
+    return await this.repo.findOne({ where });
+  }
+
   async removeById(id: number) {
     await this.repo.delete({ id });
   }
@@ -226,7 +230,7 @@ export class SessionRepository {
       .createQueryBuilder('session')
       .leftJoinAndSelect('session.photographer', 'photographer')
       .leftJoinAndSelect('session.veteran', 'veteran')
-      .where('session.status = :status', { status: SessionStatus.SCHEDULED })
+      .where('session.status = :status', { status: SessionStatus.COMPLETED })
       .andWhere('session.date <= :oneWeekAgo', { oneWeekAgo })
       .select([
         'session',

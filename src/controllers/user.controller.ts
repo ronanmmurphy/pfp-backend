@@ -98,8 +98,15 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
     @UploadedFiles() files: Express.Multer.File[],
+    @Query('from') from?: string,
   ): Promise<UserResponseDto> {
-    const user = await this.userService.updateUser(userId, id, dto, files);
+    const user = await this.userService.updateUser(
+      userId,
+      id,
+      dto,
+      files,
+      from,
+    );
     return plainToInstance(UserResponseDto, user);
   }
 

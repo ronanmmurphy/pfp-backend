@@ -14,6 +14,7 @@ import {
 import { SessionService } from '../services/session.service';
 import {
   CreateSessionDto,
+  CreateSessionFromEmailDto,
   GetSessionsQueryDto,
   SessionResponseDto,
   UpdateSessionDto,
@@ -24,17 +25,17 @@ import { IPaginatedResponse } from '@/types/shared.type';
 import { User } from '@/guards/user.decorator';
 
 @Controller('sessions')
-@UseGuards(JwtAuthGuard)
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
-  @Post()
-  async create(@Body() dto: CreateSessionDto): Promise<SessionResponseDto> {
-    const session = await this.sessionService.createSession(dto);
-    return plainToInstance(SessionResponseDto, session);
-  }
+  // @Post()
+  // async create(@Body() dto: CreateSessionDto): Promise<SessionResponseDto> {
+  //   const session = await this.sessionService.createSession(dto);
+  //   return plainToInstance(SessionResponseDto, session);
+  // }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getSessions(
     @User('sub') userId: number,
     @Query() query: GetSessionsQueryDto,
@@ -48,7 +49,17 @@ export class SessionController {
     };
   }
 
+  @Post('/create/from-email')
+  @UseGuards()
+  async createFromEmail(
+    @Body() dto: CreateSessionFromEmailDto,
+  ): Promise<SessionResponseDto> {
+    const session = await this.sessionService.createSessionFromEmail(dto);
+    return plainToInstance(SessionResponseDto, session);
+  }
+
   @Get('/recent/list')
+  @UseGuards(JwtAuthGuard)
   async recent(
     @Req() req: any,
     @Query(
@@ -64,12 +75,12 @@ export class SessionController {
     return this.sessionService.getRecentSessions(req.user.sub, limit);
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateSessionDto,
-  ): Promise<SessionResponseDto> {
-    const session = await this.sessionService.updateSession(id, dto);
-    return plainToInstance(SessionResponseDto, session);
-  }
+  // @Patch(':id')
+  // async update(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() dto: UpdateSessionDto,
+  // ): Promise<SessionResponseDto> {
+  //   const session = await this.sessionService.updateSession(id, dto);
+  //   return plainToInstance(SessionResponseDto, session);
+  // }
 }

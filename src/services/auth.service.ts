@@ -89,7 +89,7 @@ export class AuthService {
       role: Number(dto.role) as UserRole,
       status:
         Number(dto.role) === UserRole.PHOTOGRAPHER
-          ? UserStatus.ONBOARDING
+          ? UserStatus.PENDING
           : UserStatus.APPROVED,
       phoneNumber: dto.phoneNumber,
       streetAddress1: dto.streetAddress1,
@@ -128,7 +128,7 @@ export class AuthService {
 
     // Send photographer welcome email
     if (user.role === UserRole.PHOTOGRAPHER) {
-      await EmailUtil.sendOnboardingEmail(user.email, user.firstName);
+      await EmailUtil.sendPendingEmail(user.email, user.firstName);
     }
 
     if (user.role === UserRole.VETERAN) {

@@ -39,6 +39,24 @@ export class CreateSessionDto {
   @IsInt() @IsNotEmpty() veteranId: number;
 }
 
+export class CreateSessionFromEmailDto {
+  @IsInt() @IsNotEmpty() referralId: number;
+
+  @IsInt() @IsNotEmpty() userId: number;
+
+  @IsEnum(SessionStatus) status: SessionStatus;
+
+  @IsDateString() date: string;
+
+  @IsOptional() @IsEnum(SessionOutcome) outcome: SessionOutcome;
+
+  @IsOptional() @IsString() otherOutcome?: string;
+
+  @IsOptional() @IsInt() rate?: number;
+
+  @IsOptional() @IsString() feedback?: string;
+}
+
 export class GetSessionsQueryDto {
   @IsOptional() @IsString() search?: string;
 
@@ -71,7 +89,7 @@ export class GetSessionsQueryDto {
 
 export class SessionResponseDto {
   id: number;
-  name: string;
+  name?: string | null;
   note?: string | null;
   status: SessionStatus;
 
@@ -88,11 +106,15 @@ export class SessionResponseDto {
 
   outcomePhotographer?: SessionOutcome | null;
 
+  otherOutcomePhotographer?: string | null;
+
   ratePhotographer?: number | null;
 
   photographerFeedback?: string | null;
 
   outcomeVeteran?: SessionOutcome | null;
+
+  otherOutcomeVeteran?: string | null;
 
   rateVeteran?: number | null;
 

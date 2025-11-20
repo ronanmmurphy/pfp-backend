@@ -116,6 +116,7 @@ export class UserRepository {
         'distance',
       )
       .where(`"user"."role" = :role`, { role: 1 }) // adjust enum
+      .andWhere(`"user"."open_to_referrals" = true`)
       .andWhere(`"user"."latitude" IS NOT NULL`)
       .andWhere(`"user"."longitude" IS NOT NULL`)
       .andWhere(
