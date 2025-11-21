@@ -339,6 +339,7 @@ export class EmailUtil {
     photographerFirstName: string,
     photographerLastName: string,
     photographerLocation: string,
+    bookingLink: string,
   ) {
     try {
       const transporter = this.getTransporter();
@@ -355,9 +356,13 @@ export class EmailUtil {
 
           <h3>Photographer Details:</h3>
           <ul>
-            <li><strong>Name:</strong> ${photographerFirstName} ${photographerLastName}</li>
-            <li><strong>Email:</strong> ${photographerEmail}</li>
-            <li><strong>Phone:</strong> ${photographerPhone}</li>
+          <li><strong>Name:</strong> ${photographerFirstName} ${photographerLastName}</li>  
+          ${
+            bookingLink === ''
+              ? `<li><strong>Email:</strong> ${photographerEmail}</li>
+            <li><strong>Phone:</strong> ${photographerPhone}</li>`
+              : `<li><strong>Booking Link:</strong> <a href="${bookingLink}">${bookingLink}</a></li>`
+          }
             <li><strong>Location:</strong> ${photographerLocation}</li>
           </ul>
   

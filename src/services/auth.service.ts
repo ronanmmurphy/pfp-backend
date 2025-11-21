@@ -101,6 +101,7 @@ export class AuthService {
       longitude: dto.longitude,
       website:
         dto.role === UserRole.PHOTOGRAPHER ? (dto.website ?? null) : null,
+      bookingLink: dto?.bookingLink,
       referredBy: dto?.referredBy ?? null,
       seekingEmployment:
         dto.role === UserRole.VETERAN ? (dto.seekingEmployment ?? null) : null,

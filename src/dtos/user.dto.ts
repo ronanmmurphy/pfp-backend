@@ -79,6 +79,8 @@ export class CreateUserDto {
 
   @IsBoolean() openToReferrals: boolean;
 
+  @IsOptional() @IsString() bookingLink?: string;
+
   // Photographer Onboarding
   @IsOptional() @IsString() mailingStreetAddress1?: string;
 
@@ -188,6 +190,8 @@ export class UserResponseDto {
   website?: string | null;
 
   openToReferrals: boolean;
+
+  bookingLink?: string | null;
 
   // Photographer Onboarding
   mailingStreetAddress1?: string | null;

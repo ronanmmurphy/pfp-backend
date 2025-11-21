@@ -127,6 +127,7 @@ export class UserService {
         dto.role === UserRole.PHOTOGRAPHER ? (dto.website ?? null) : null,
       openToReferrals:
         dto.role === UserRole.PHOTOGRAPHER ? dto.openToReferrals : true,
+      bookingLink: dto?.bookingLink,
       // Photographer Onboarding
       mailingStreetAddress1:
         dto.role === UserRole.PHOTOGRAPHER
@@ -255,6 +256,7 @@ export class UserService {
       // Photographer
       website: dto?.website ?? undefined,
       openToReferrals: dto.openToReferrals,
+      bookingLink: dto?.bookingLink ?? undefined,
       // Photographer Onboarding
       mailingStreetAddress1: dto?.mailingStreetAddress1 ?? undefined,
       mailingStreetAddress2: dto?.mailingStreetAddress2 ?? undefined,

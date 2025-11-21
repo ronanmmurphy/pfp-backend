@@ -107,6 +107,14 @@ export class User extends BaseEntity {
   @Column({ name: 'open_to_referrals', type: 'boolean', default: true })
   openToReferrals: boolean;
 
+  @Column({
+    name: 'booking_link',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  bookingLink?: string | null;
+
   // Photographer Onboarding
   @Column({
     name: 'mailing_street_address1',

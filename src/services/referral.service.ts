@@ -34,6 +34,8 @@ export class ReferralService {
     if (referral && referral.status === ReferralStatus.MATCHED)
       throw new ConflictException('You already had a matched referral');
 
+    const bookingLink = photographer.bookingLink || '';
+
     await EmailUtil.sendInitialPhotographerReferralEmail(
       veteran.email,
       veteran.firstName,
@@ -48,6 +50,7 @@ export class ReferralService {
         photographer.postalCode,
         photographer?.streetAddress2,
       ),
+      bookingLink,
     );
 
     await EmailUtil.sendInitialVeteranReferralEmail(
